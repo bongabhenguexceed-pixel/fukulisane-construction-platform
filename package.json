@@ -1,0 +1,33 @@
+{
+  "name": "project",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": " module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "generate": "bun ./node_modules/@shogo-ai/sdk/bin/cli.mjs generate",
+    "db:generate": "bun x --bun prisma generate",
+    "db:migrate:dev": "bun x --bun prisma migrate dev",
+    "db:migrate:deploy": "bun x --bun prisma migrate deploy",
+    "db:push": "bun x --bun prisma db push"
+  },
+  "dependencies": {
+    "@prisma/adapter-libsql": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "@shogo-ai/sdk": "^1.10.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "hono": "^4.0.0",
+    "lucide-react": "^0.563.0",
+    "mobx": "^6.13.0",
+    "mobx-react-lite": "^4.0.0",
+    "radix-ui": "^1.4.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.3",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}
