@@ -1,0 +1,679 @@
+// SHOGO:CUSTOM-START prisma-header
+// Managed by Shogo. Do not add a datasource `url` or change the generator `provider` — the database URL is configured in prisma.config.ts (Prisma 7+).
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+// SHOGO:CUSTOM-END
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("users")
+}
+
+model Business {
+  id              String   @id @default(cuid())
+  name            String
+  tagline         String?
+  description     String?
+  phone           String?
+  email           String?
+  website         String?
+  address         String?
+  city            String?
+  province        String?
+  logoUrl         String?
+  foundedYear     Int?
+  registrationNo  String?
+  vatNumber       String?
+  visibilityScore Int      @default(0)
+  googleRating    Float?
+  googleReviews   Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  services        Service[]
+  gallery         GalleryItem[]
+  reviews         Review[]
+  projects        Project[]
+  campaigns       Campaign[]
+  competitors     Competitor[]
+  brandAssets     BrandAsset[]
+  @@map("businesses")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  businessId  String
+  name        String
+  description String?
+  category    String?
+  priceRange  String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  business    Business @relation(fields: [businessId], references: [id])
+  @@map("services")
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  businessId  String
+  title       String
+  description String?
+  imageUrl    String
+  category    String?
+  projectId   String?
+  createdAt   DateTime @default(now())
+  business    Business @relation(fields: [businessId], references: [id])
+  @@map("gallery_items")
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  businessId   String
+  customerName String
+  rating       Int
+  comment      String?
+  source       String?
+  language     String?  @default("en")
+  sentiment    String?
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  business     Business @relation(fields: [businessId], references: [id])
+  @@map("reviews")
+}
+
+model QuoteRequest {
+  id            String   @id @default(cuid())
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  serviceType   String
+  description   String?
+  budget        String?
+  preferredDate String?
+  location      String?
+  language      String?  @default("en")
+  status        String   @default("new")
+  leadScore     Int?
+  source        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@map("quote_requests")
+}
+
+model BuyerProfile {
+  id            String   @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  location      String?
+  province      String?
+  serviceNeeded String?
+  budgetMin     Float?
+  budgetMax     Float?
+  timeline      String?
+  readiness     String   @default("early")
+  leadScore     Int      @default(0)
+  source        String?
+  notes         String?
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  scores        LeadScore[]
+  opportunities Opportunity[]
+  @@map("buyer_profiles")
+}
+
+model LeadScore {
+  id              String   @id @default(cuid())
+  buyerProfileId  String
+  budgetFit       Int      @default(0)
+  serviceMatch    Int      @default(0)
+  geographicFit   Int      @default(0)
+  engagement      Int      @default(0)
+  quoteComplete   Int      @default(0)
+  previousInteract Int     @default(0)
+  referralSource  Int      @default(0)
+  totalScore      Int      @default(0)
+  scoredAt        DateTime @default(now())
+  buyerProfile    BuyerProfile @relation(fields: [buyerProfileId], references: [id])
+  @@map("lead_scores")
+}
+
+model Opportunity {
+  id              String   @id @default(cuid())
+  buyerProfileId  String
+  title           String
+  value           Float?
+  probability     Int      @default(0)
+  stage           String   @default("discovery")
+  source          String?
+  notes           String?
+  expectedClose   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  buyerProfile    BuyerProfile @relation(fields: [buyerProfileId], references: [id])
+  @@map("opportunities")
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  businessId  String
+  name        String
+  type        String
+  status      String   @default("draft")
+  content     String?
+  budget      Float?
+  spent       Float?   @default(0)
+  reach       Int?     @default(0)
+  impressions Int?     @default(0)
+  clicks      Int?     @default(0)
+  conversions Int?     @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  language    String?  @default("en")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  business    Business @relation(fields: [businessId], references: [id])
+  @@map("campaigns")
+}
+
+model BrandAsset {
+  id          String   @id @default(cuid())
+  businessId  String
+  type        String
+  name        String
+  fileUrl     String?
+  notes       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  business    Business @relation(fields: [businessId], references: [id])
+  @@map("brand_assets")
+}
+
+model Competitor {
+  id              String   @id @default(cuid())
+  businessId      String
+  name            String
+  website         String?
+  location        String?
+  visibilityScore Int      @default(0)
+  contentScore    Int      @default(0)
+  seoScore        Int      @default(0)
+  reviewScore     Int      @default(0)
+  rating          Float?
+  reviewCount     Int      @default(0)
+  strengths       String?
+  weaknesses      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  business        Business @relation(fields: [businessId], references: [id])
+  @@map("competitors")
+}
+
+model Trend {
+  id          String   @id @default(cuid())
+  name        String
+  category    String?
+  searchVolume Int?
+  growthRate  Float?
+  region      String?  @default("South Africa")
+  insight     String?
+  opportunity String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  @@map("trends")
+}
+
+model SEOKeyword {
+  id           String   @id @default(cuid())
+  keyword      String
+  language     String   @default("en")
+  location     String?
+  rank         Int?
+  searchVolume Int?
+  difficulty   Int?
+  traffic      Int?     @default(0)
+  url          String?
+  isTracked    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@map("seo_keywords")
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  businessId      String
+  name            String
+  clientName      String?
+  clientEmail     String?
+  clientPhone     String?
+  type            String?
+  address         String?
+  city            String?
+  province        String?
+  status          String   @default("planning")
+  progress        Int      @default(0)
+  budget          Float?
+  spent           Float?   @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  startDateActual DateTime?
+  endDateActual   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  business        Business @relation(fields: [businessId], references: [id])
+  siteDiaries     SiteDiary[]
+  inspections     Inspection[]
+  snagItems       SnagItem[]
+  safetyIncidents SafetyIncident[]
+  warranties      Warranty[]
+  materials       ProjectMaterial[]
+  labour          ProjectLabour[]
+  @@map("projects")
+}
+
+model SiteDiary {
+  id          String   @id @default(cuid())
+  projectId   String
+  date        DateTime
+  weather     String?
+  workDone    String?
+  labourCount Int?
+  equipment   String?
+  materials   String?
+  issues      String?
+  photos      String?
+  notes       String?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("site_diaries")
+}
+
+model Inspection {
+  id          String   @id @default(cuid())
+  projectId   String
+  type        String
+  status      String   @default("scheduled")
+  scheduledAt DateTime?
+  completedAt DateTime?
+  inspector   String?
+  notes       String?
+  result      String?
+  score       Int?
+  createdAt   DateTime @default(now())
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("inspections")
+}
+
+model SnagItem {
+  id          String   @id @default(cuid())
+  projectId   String
+  description String
+  location    String?
+  severity    String   @default("minor")
+  status      String   @default("open")
+  assignedTo  String?
+  dueDate     DateTime?
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("snag_items")
+}
+
+model SafetyIncident {
+  id               String   @id @default(cuid())
+  projectId        String
+  date             DateTime
+  type             String
+  description      String
+  location         String?
+  injured          String?
+  ppeCompliance    Int?
+  rootCause        String?
+  correctiveAction String?
+  reportedBy       String?
+  status           String   @default("open")
+  createdAt        DateTime @default(now())
+  project          Project @relation(fields: [projectId], references: [id])
+  @@map("safety_incidents")
+}
+
+model Warranty {
+  id          String   @id @default(cuid())
+  projectId   String
+  type        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("active")
+  notes       String?
+  createdAt   DateTime @default(now())
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("warranties")
+}
+
+model ProjectMaterial {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  quantity    Float
+  unit        String?
+  costPerUnit Float?
+  totalCost   Float?
+  supplier    String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("project_materials")
+}
+
+model ProjectLabour {
+  id          String   @id @default(cuid())
+  projectId   String
+  role        String
+  workerCount Int?
+  hoursPerDay Float?
+  daysPerWeek Int?
+  ratePerHour Float?
+  totalCost   Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project @relation(fields: [projectId], references: [id])
+  @@map("project_labour")
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  category    String?
+  rating      Float?
+  notes       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("suppliers")
+}
+
+model Material {
+  id          String   @id @default(cuid())
+  name        String
+  category    String?
+  unit        String?
+  pricePerUnit Float?
+  supplier    String?
+  inStock     Int      @default(0)
+  minStock    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("materials")
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  supplier    String
+  items       String?
+  totalCost   Float?
+  status      String   @default("draft")
+  orderDate   DateTime?
+  deliveryDate DateTime?
+  projectId   String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("purchase_orders")
+}
+
+model Vehicle {
+  id          String   @id @default(cuid())
+  name        String
+  type        String?
+  registration String?
+  make        String?
+  model       String?
+  year        Int?
+  status      String   @default("active")
+  mileage     Int?
+  lastService DateTime?
+  nextService DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("vehicles")
+}
+
+model Equipment {
+  id          String   @id @default(cuid())
+  name        String
+  type        String?
+  serialNo    String?
+  status      String   @default("active")
+  location    String?
+  purchaseDate DateTime?
+  lastService DateTime?
+  nextService DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("equipment")
+}
+
+model FuelLog {
+  id          String   @id @default(cuid())
+  vehicleId   String?
+  date        DateTime
+  liters      Float
+  costPerLiter Float?
+  totalCost   Float?
+  odometer    Int?
+  driver      String?
+  createdAt   DateTime @default(now())
+  @@map("fuel_logs")
+}
+
+model MaintenanceRecord {
+  id          String   @id @default(cuid())
+  equipmentId String?
+  vehicleId   String?
+  type        String
+  description String?
+  cost        Float?
+  date        DateTime
+  nextDue     DateTime?
+  provider    String?
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+  @@map("maintenance_records")
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?
+  phone       String?
+  email       String?
+  idNumber    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String   @default("active")
+  ratePerHour Float?
+  skills      String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("employees")
+}
+
+model Attendance {
+  id          String   @id @default(cuid())
+  employeeId  String
+  date        DateTime
+  checkIn     DateTime?
+  checkOut    DateTime?
+  hoursWorked Float?
+  overtime    Float?   @default(0)
+  siteLocation String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  @@map("attendance")
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  projectId   String?
+  clientName  String
+  clientEmail String?
+  items       String?
+  subtotal    Float?
+  tax         Float?
+  total       Float?
+  status      String   @default("draft")
+  dueDate     DateTime?
+  paidDate    DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("invoices")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  invoiceId   String?
+  amount      Float
+  method      String?
+  reference   String?
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  @@map("payments")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  category    String
+  description String?
+  amount      Float
+  date        DateTime
+  projectId   String?
+  receiptUrl  String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  @@map("expenses")
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  engine      String
+  title       String
+  description String
+  priority    String   @default("medium")
+  category    String?
+  impact      String?
+  effort      String?
+  status      String   @default("pending")
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("recommendations")
+}
+
+model AutopilotWorkflow {
+  id            String   @id @default(cuid())
+  name          String
+  trigger       String
+  actions       String?
+  status        String   @default("active")
+  totalRuns     Int      @default(0)
+  successRate   Float    @default(0)
+  lastRunAt     DateTime?
+  timeSavedMin  Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  activities    AutopilotActivity[]
+  @@map("autopilot_workflows")
+}
+
+model AutopilotActivity {
+  id          String   @id @default(cuid())
+  workflowId  String
+  action      String
+  status      String
+  details     String?
+  executedAt  DateTime @default(now())
+  workflow    AutopilotWorkflow @relation(fields: [workflowId], references: [id])
+  @@map("autopilot_activities")
+}
+
+model IntelligenceEngine {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  status      String   @default("active")
+  healthScore Int      @default(100)
+  lastSyncAt  DateTime?
+  dataPoints  Int      @default(0)
+  insights    Int      @default(0)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("intelligence_engines")
+}
+
+model Translation {
+  id          String   @id @default(cuid())
+  key         String
+  language    String
+  value       String
+  module      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([key, language])
+  @@map("translations")
+}
+
+model LanguagePreference {
+  id          String   @id @default(cuid())
+  entityType  String
+  entityId    String
+  language    String   @default("en")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("language_preferences")
+}
+
+model IntegrationConnection {
+  id              String   @id @default(cuid())
+  integrationId   String   @unique
+  name            String
+  category        String
+  status          String   @default("disconnected")
+  connectedAt     DateTime?
+  lastSyncAt      DateTime?
+  errorMessage    String?
+  config          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@map("integration_connections")
+}
