@@ -1,48 +1,49 @@
-# Fukulisane Construction Platform
+# ZUXURU — Fukulisane Construction Platform
 
-Professional construction website powered by ZUXURU intelligence.
-
-## Quick Setup
-
-```bash
-# Clone the repo
-git clone https://github.com/bongabhenguexceed-pixel/fukulisane-construction-platform.git
-cd fukulisane-construction-platform
-
-# Run the setup script (copies missing files from workspace, installs deps, builds)
-bash scripts/setup.sh
-```
-
-## Manual Setup
-
-```bash
-npm install
-npx shadcn@latest add button card badge tabs table dialog input label textarea select accordion progress separator skeleton tooltip avatar dropdown-menu sheet popover switch checkbox scroll-area alert popover
-npx prisma generate
-npx shogo generate
-npm run build
-```
-
-## Deploy to Netlify
-
-```bash
-# Option 1: CLI
-npm install -g netlify-cli
-netlify deploy --prod --dir=dist
-
-# Option 2: GitHub (recommended)
-# Go to https://app.netlify.com → Add new site → Import from Git
-# Select this repo → Build command: npm run build → Publish directory: dist
-```
+## Live App
+**https://e70a024e-386f-4b83-af97-683c9320b030.preview.shogo.ai**
 
 ## Owner Login
-
 - Email: donlegendwear@gmail.com
 - Password: Bonana100#
 
-## Tech Stack
+## Quick Deploy
+```bash
+# Clone
+	git clone https://github.com/bongabhenguexceed-pixel/fukulisane-construction-platform.git
+cd fukulisane-construction-platform
 
-- **Frontend**: React + TypeScript + Tailwind CSS + shadcn/ui
-- **Backend**: Hono + Prisma + SQLite
-- **Intelligence**: ZUXURU hidden backend (10 engines, 12 platforms)
-- **Host**: Cloudflare Pages / Netlify / Render
+# Install
+npm install
+
+# Run locally
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Deploy to Netlify (Frontend)
+1. Go to https://app.netlify.com
+2. Import from Git → Select this repo
+3. Build: npm run build
+4. Publish: dist
+
+## Deploy to Render (Full Stack)
+1. Go to https://dashboard.render.com
+2. New Web Service → Connect repo
+3. Build: npm install && npm run build
+4. Start: node dist/server.js
+
+## Tech Stack
+- React + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- Hono (backend)
+- Prisma (ORM)
+- SQLite (dev) / PostgreSQL (prod)
+
+## Owner
+- Business: Fukulisane Construction
+- Phone: 081 774 6377
+- Email: donlegendwear@gmail.com
+- Address: C260 Mbomu Road, Ezimbokodweni, Malagazi, 4126
